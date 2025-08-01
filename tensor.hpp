@@ -13,6 +13,7 @@ using namespace std;
 /* row-major */
 template<typename T, size_t Rank>
 class Tensor {
+    
     vector<T>      data_;
     array<size_t, Rank> shape_;
     array<size_t, Rank> strides_;
@@ -38,6 +39,7 @@ class Tensor {
     }
 
 public:
+    using value_type = T;
     constexpr Tensor() = default;
     explicit Tensor(const array<size_t, Rank>& dims, const T& v = T())
         : data_(total(dims), v), shape_(dims) { bake_strides(); }
@@ -48,7 +50,7 @@ public:
     constexpr const auto& shape()   const noexcept { return shape_;   }
     constexpr const auto& strides() const noexcept { return strides_; }
     constexpr size_t size()         const noexcept { return data_.size(); }
-    void fill(const T& v) { fill(data_.begin(), data_.end(), v); }
+    void fill(const T& v) { std::fill(data_.begin(), data_.end(), v); }
 
     /* needed by einsum */
     auto*       _data() noexcept       { return data_.data(); }
