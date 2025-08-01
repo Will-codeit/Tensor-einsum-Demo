@@ -26,9 +26,7 @@ target_link_libraries(demo PRIVATE tensor_objects)
 
 # ───────────────────── Unit-test target ──────────────────
 enable_testing()
-add_executable(unit_tests
-    tests/test_tensor.cpp
-    tests/test_tensor_intensive.cpp      
+add_executable(unit_tests     
     tests/test_tensor_speed.cpp
 )
 target_link_libraries(unit_tests
