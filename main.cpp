@@ -1,14 +1,18 @@
-#include "tensor.hpp"
+#include "tensor.hpp"      // Tensor<T, Rank>
 #include "einsum.hpp"
 #include <iostream>
 
 int main()
 {
-    Tensor<double> a({3}, 1.0);
-    Tensor<double> b({3});
-    for (size_t i = 0; i < 3; ++i) b({i}) = i + 2;   
+    using Ten1 = Tensor<double, 1>;      // rank-1 tensor (vector)
 
-    Tensor<double> dot = einsum<double>("i,i->", {a, b});
-    std::cout << "dot = " << dot({}) << std::endl;  
+    Ten1 a({{3}}, 1.0);                  // [1,1,1]
+    Ten1 b({{3}});                       // [?, ?, ?]
+
+    for (std::size_t i = 0; i < 3; ++i)
+        b({{i}}) = static_cast<double>(i + 2);   // 2,3,4
+
+    Ten1 dot = einsum<double, 1>("i,i->", {a, b});
+    std::cout << "dot = " << dot({{}}) << std::endl;   // prints 9
     return 0;
 }
