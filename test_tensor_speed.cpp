@@ -32,7 +32,7 @@ TEST(Speed, BatchedMatMul_300x300x300)
     fill_random(B);
 
     auto t0 = std::chrono::high_resolution_clock::now();
-    Ten  C  = einsum<T, 3>("bmk,bkn->bmn", {A, B});   // ← rank is 3
+    Ten  C  = einsum<T, 3>("bmk,bkn->bmn", {A, B});
     auto t1 = std::chrono::high_resolution_clock::now();
 
     double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
