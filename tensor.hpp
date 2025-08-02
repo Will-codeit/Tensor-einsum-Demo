@@ -7,6 +7,9 @@
 #include <functional>
 #include <stdexcept>
 #include <fstream>
+#include <algorithm>
+#include <cstddef>
+#include <string>
 
 using namespace std;
 
@@ -38,24 +41,41 @@ class Tensor {
         return off;
     }
 
+    /*
+    constexpr means compiler can evaluate value when compiling
+    inline means the compiler can consider replacing the function call with its definition 
+    */
+
 public:
     using value_type = T;
-    constexpr Tensor() = default;
+
+    constexpr Tensor() noexcept = default;
+    explicit Tensor(const std::array<size_t, Rank>& dims,
+        std::initializer_list<T> init)
+        : data_(init), shape_(dims)
+    {
+        if (data_.size() != total(dims))
+        throw std::runtime_error("Tensor: initializer size mismatch");
+        bake_strides();
+    }
     explicit Tensor(const array<size_t, Rank>& dims, const T& v = T())
         : data_(total(dims), v), shape_(dims) { bake_strides(); }
 
-    inline T&       operator()(const array<size_t, Rank>& idx)       { return data_[flat(idx)]; }
-    inline const T& operator()(const array<size_t, Rank>& idx) const { return data_[flat(idx)]; }
+    inline T&       operator()(const array<size_t, Rank>& idx)       noexcept { return data_[flat(idx)]; }
+    inline const T& operator()(const array<size_t, Rank>& idx) const noexcept { return data_[flat(idx)]; }
 
     constexpr const auto& shape()   const noexcept { return shape_;   }
     constexpr const auto& strides() const noexcept { return strides_; }
     constexpr size_t size()         const noexcept { return data_.size(); }
+
     void fill(const T& v) { std::fill(data_.begin(), data_.end(), v); }
 
     /* needed by einsum */
-    auto*       _data() noexcept       { return data_.data(); }
-    const auto* _data() const noexcept { return data_.data(); }
-    const auto& _strides() const       { return strides_; }
+    inline       T* _data()                            noexcept { return data_.data(); }
+    inline const T* _data()                      const noexcept { return data_.data(); }
+    inline const array<size_t, Rank>& _strides() const noexcept { return strides_; }
+
+    inline const vector<T> getData()            const noexcept { return data_;}
 
      /* ── save / load (binary) ─────────────────── */
     void save(const std::string& f) const
@@ -71,6 +91,15 @@ public:
         bake_strides();
         data_.resize(total(shape_));
         in.read(reinterpret_cast<char*>(data_.data()), sizeof(T)*data_.size());
+    }
+
+    string listToString(const vector<T>& listofthings) {
+        string resultString;
+        for (const auto& s : listofthings) {
+            resultString += to_string(s); // Concatenate each string in the list
+            resultString += (", ");
+        }
+        return resultString;
     }
 };
 
