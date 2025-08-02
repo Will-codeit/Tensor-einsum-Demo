@@ -42,8 +42,8 @@ einsum(const std::string& eq, const std::vector< Tensor<T, Rank> >& ops)
             const char lbl = subs[t][a];
             const std::size_t dim = ops[t].shape()[a];
             if (extent.count(lbl) && extent[lbl] != dim)
-                throw std::invalid_argument("dimension mismatch on label");
-            extent[lbl] = dim; ++freq[lbl];
+                throw std::invalid_argument("dimension mismatch on label " + to_string(lbl));
+            extent[lbl] = dim; ++freq[lbl]; 
         }
 
     /* 4. implicit RHS (unique labels) */
